@@ -4,10 +4,10 @@
 <title>Gembok Authenticator - Simple 2FA Authenticator</title>
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Generate 2FA authentication token">
+<meta name="description" content="Generate 2-Step authentication token using browser">
 <meta name="keywords" content="authenticator, gembok, 2fa, otp generator">
 <meta property="og:title" content="Gembok Authenticator - Simple 2FA Authenticator">
-<meta property="og:description" content="Generate 2FA authentication token">
+<meta property="og:description" content="Generate 2-Step authentication token using browser">
 <meta property="og:url" content="https://rioastamal.net/gembok/">
 <meta property="og:image" content="https://rioastamal.net/gembok/assets/cover.jpg">
 <meta charset="utf-8">
@@ -204,7 +204,18 @@ ul.menu-list li span {
   <h2 class="title text-center border-bottom">&#128274; Gembok Authenticator</h2>
 </div>
 
+<div class="about hide">
+  <div class="item">
+    <h3 class="item-title">About</h3>
+    <p class="item-desc">.</p>
+  </div>
+</div>
+
 <div class="items-container">
+  <div class="item">
+    <h3 class="item-title">No data</h3>
+    <p class="item-desc">Click &quot;Open File...&quot; to load your data.</p>
+  </div>
 </div>
 
 <!-- HIDDEN INPUT FILE -->
@@ -219,8 +230,8 @@ var fileOpenInput = document.getElementById('file-open-input');
 
 function createItem(options) {
   var itemHtml = '<div class="item" data-algorithm="' + (options.algorithm || 'SHA1') + '" data-provider="' + options.provider + '" data-digits="' + (options.digits || 6) + '" data-period="' + (options.period || 30) + '">';
-      itemHtml += '<h3 class="item-title">' + options.provider + '</h3>';
-      itemHtml += '<p class="item-desc">' + options.description + '</p>';
+      itemHtml += '<h3 class="item-title">' + (options.provider || 'error') + '</h3>';
+      itemHtml += '<p class="item-desc">' + (options.description || '') + '</p>';
       itemHtml += '<h4 class="item-token">000000</h4>';
       itemHtml += '<div style="background-color: ' + (options.indicatorColor || 'red') + '" class="item-expires"><div class="item-expires-progress"></div></div>';
 
@@ -228,18 +239,24 @@ function createItem(options) {
 }
 
 function loadItems(jsonData) {
-  var items = JSON.parse(jsonData);
-  for (var i=0; i<items.length; i++) {
-    secretMap[items[i].provider] = items[i].secret;
-    createItem(items[i]);
-  }
+  try {
+    var items = JSON.parse(jsonData);
+    for (var i=0; i<items.length; i++) {
+      secretMap[items[i].provider] = items[i].secret;
+      createItem(items[i]);
+    }
 
-  updateAllProgressBar();
+    updateAllProgressBar();
+  } catch(e) {
+    if (e.name === "SyntaxError") {
+      alert('Failed to load JSON file, make sure it is valid.');
+    }
+  }
 }
 
 
 function updateAllProgressBar() {
-  var items = $$('.item');
+  var items = $$('.items-container .item');
   for (var i=0; i<items.length; i++) {
     updateProgressBar(items[i]);
   }
