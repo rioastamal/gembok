@@ -140,6 +140,7 @@ ul.menu-list li span {
   font-size: 12px;
   display: block;
   margin-bottom: 12px;
+  line-height: 20px;
 }
 .item .item-token {
   font-size: 32px;
@@ -156,6 +157,9 @@ ul.menu-list li span {
   width: 100%;
   height: 4px;
   background-color: #f1f1f1;
+}
+pre {
+  margin-bottom: 14px;
 }
 @media (min-width: 960px) {
   .item {
@@ -191,10 +195,12 @@ ul.menu-list li span {
     <li>
       <a id="menu-open-file" href="#">Open File...</a>
     </li>
+    <li><a id="menu-main" href="#main">Tokens</a></li>
+    <li><a id="menu-help" href="#help">Help</a></li>
     <li><a id="menu-about" href="#about">About</a></li>
   </ul>
   <div class="menu-footer">
-    <span>Gembok v1.0</span>
+    <span>Gembok Authenticator v1.0</span>
     <span>Made with &#x2665; by <a href="https://rioastamal.net/">Rio Astamal</a></span>
   </div>
 </div>
@@ -204,14 +210,81 @@ ul.menu-list li span {
   <h2 class="title text-center border-bottom">&#128274; Gembok Authenticator</h2>
 </div>
 
-<div class="about hide">
+<div class="about pages hide">
   <div class="item">
     <h3 class="item-title">About</h3>
-    <p class="item-desc">.</p>
+    <p class="item-desc">Gembok Authenticator is software based (virtual) authenticator to generate 2-Steps
+    authentication token using browser. It is written in HTML and Javascript so it should works on Google
+    Chrome, Firefox, Safari and other browsers. It uses simple JSON file to store all data
+    which needed to generate the token.</p>
+
+    <h3 class="item-title">Compatibility</h3>
+    <p class="item-desc">Gembok Authenticator uses the same algorithm as most software based
+      authenticator such as Google Authenticator. Based on my personal limited
+      test using various services such as Twitter and AWS I found no issue.</p>
+
+    <h3 class="item-title">Credits</h3>
+    <p class="item-desc">Gembok Authenticator uses following library.<br>
+      - <a href="https://github.com/hectorm/otpauth">https://github.com/hectorm/otpauth</a> by Héctor Molinero Fernández.</p>
+
+    <h3 class="item-title">Changelog</h3>
+    <p class="item-desc"><b>v1.0</b><br>
+      - Initial release of Gembok Authenticator (2021/08/03)</p>
+
+    <h3 class="item-title">Author</h3>
+    <p class="item-desc">This application is written by <b><a href="https://rioastamal.net/">Rio Astamal</a></b>.</p>
+
+    <h3 class="item-title">License</h3>
+    <p class="item-desc">This application is open source licensed under
+      <b><a href="http://opensource.org/licenses/MIT">MIT license</a></b>.</p>
   </div>
 </div>
 
-<div class="items-container">
+<div class="help pages hide">
+  <div class="item">
+    <h3 class="item-title">Help</h3>
+    <p class="item-desc">First thing you need to do to start using Gembok Authenticator is to create JSON file
+    containing token's information.</p>
+
+    <h3 class="item-title">Create JSON File</h3>
+    <p class="item-desc">Here is an example of JSON file. Copy JSON string below and then save it to your computer
+    as .json extension.</p>
+
+    <pre><code>[
+  {
+    "provider": "Google",
+    "description": "Main account",
+    "secret": "I5XW6Z3MMUQG2YLJNYQGCY3D",
+    "period": 30,
+    "digits": 6,
+    "algorithm": "SHA1",
+    "indicatorColor": "red"
+  },
+  {
+    "provider": "AWS",
+    "description": "Root account (john@example.com)",
+    "secret": "IFLVG4TPN52GCY3D",
+    "indicatorColor": "orange"
+  },
+  {
+    "provider": "Twitter",
+    "description": "john@example.com",
+    "secret": "KR3WS5DUMVZC4Y3PNVVG62DO",
+    "indicatorColor": "#1DA1F2"
+  },
+  {
+    "provider": "Facebook",
+    "description": "Foo account",
+    "secret": "IZQWGZLCN5XWWLTD",
+    "indicatorColor": "#4267B2"
+  }
+]</code></pre>
+    <p class="item-desc">The only required attributes are provider and secret the rest are optional.</p>
+  <p class="item-desc">Save the JSON file and then use Open File... menu to load the file. You should now see 4 items being displayed.</p>
+  </div>
+</div>
+
+<div class="items-container main pages">
   <div class="item">
     <h3 class="item-title">No data</h3>
     <p class="item-desc">Click &quot;Open File...&quot; to load your data.</p>
@@ -304,12 +377,35 @@ function resetState() {
   }
 }
 
-document.getElementById('menu-open-file').onclick = function(e)
-{
+function openPage(name) {
+  var pages = $$('.pages');
+  for (var i=0; i<pages.length; i++) {
+    if (pages[i].className.indexOf(name) === -1) {
+      pages[i].style.display = 'none';
+      continue;
+    }
+
+    pages[i].style.display = 'block';
+  }
+}
+
+$('#menu-open-file').onclick = function(e) {
   if (fileOpenInput) {
     fileOpenInput.value = ''; // force 'onchange' event
     fileOpenInput.click();
   }
+}
+
+$('#menu-main').onclick = function(e) {
+  openPage('main');
+}
+
+$('#menu-about').onclick = function(e) {
+  openPage('about');
+}
+
+$('#menu-help').onclick = function(e) {
+  openPage('help');
 }
 
 fileOpenInput.onchange = function(e) {
@@ -319,6 +415,7 @@ fileOpenInput.onchange = function(e) {
   reader.onload = function(readerEvt) {
     resetState();
     loadItems(reader.result);
+    openPage('main');
   }
   reader.readAsText(file);
 }
