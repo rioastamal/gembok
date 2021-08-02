@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gembok Authenticator - Simple 2FA Authenticator</title>
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Generate 2FA authentication token">
+<meta name="keywords" content="authenticator, gembok, 2fa, otp generator">
+<meta property="og:title" content="Gembok Authenticator - Simple 2FA Authenticator">
+<meta property="og:description" content="Generate 2FA authentication token">
+<meta property="og:url" content="https://rioastamal.net/gembok/">
+<meta property="og:image" content="https://rioastamal.net/gembok/assets/cover.jpg">
+<meta charset="utf-8">
+<style>
+html {
+  height: 100%;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Arial, sans-serif;
+  width: 100%;
+  position: relative;
+  min-height: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  color: #999;
+  background-color: #272822;
+}
+a, a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+a.button {
+  padding: 0.5em 1em;
+  background-color: #333;
+  margin-left: 2em;
+}
+h2.title {
+  display: block;
+  width: 100%;
+  padding: 0.5em 0.5em 0.5em 1em;
+  font-size: 1.2em;
+  font-weight: normal;
+  box-sizing: border-box;
+}
+.text-center {
+  text-align: center;
+}
+.hide {
+  display: none;
+}
+.border-bottom {
+  border-bottom: 1px solid #333;
+}
+.menu-icon {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 10px;
+  z-index: 10;
+}
+.linemenu {
+  width: 24px;
+  height: 4px;
+  background-color: #999;
+  margin: 4px 0;
+  display: block;
+}
+.menu {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding-top: 2em;
+  padding-right: 2em;
+  display: none;
+  background-color: inherit;
+}
+ul.menu-list {
+  list-style: none;
+  padding-left: 1.4em;
+}
+ul.menu-list li {
+  padding: 0.2em 0.5em 0.4em 0.5em;
+  border-bottom: 1px solid #333;
+  margin-bottom: 0.5em;
+}
+ul.menu-list li a {
+  display: block;
+}
+ul.menu-list li span {
+  display: block;
+  font-size: 0.6em;
+  padding-top: 0.5em;
+}
+.menu:target {
+  display: block;
+}
+.menu-close {
+  padding: 0.5em;
+  position: absolute;
+  top: 0;
+  right: 1em;
+  background-color: black;
+}
+.menu-footer {
+  font-size: 0.7em;
+  position: absolute;
+  bottom: 1.5em;
+  width: 100%;
+}
+.menu-footer span {
+  display: block;
+  margin-bottom: 0.4em;
+  text-align: center;
+}
+.menu-footer span a {
+    color: #fff;
+}
+.item {
+  box-sizing: border-box;
+  padding: 10px 0 10px 10px;
+  width: 100%;
+}
+.item .item-title {
+  color: #f1f1f1;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 22px;
+  font-weight: normal;
+}
+.item .item-desc {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 12px;
+}
+.item .item-token {
+  font-size: 32px;
+  font-weight: normal;
+  color: #f1f1f1;
+}
+.item .item-expires {
+  width: 100%;
+  height: 4px;
+  display: inline-block;
+  background-color: red;
+}
+.item .item-expires .item-expires-progress {
+  width: 100%;
+  height: 4px;
+  background-color: #f1f1f1;
+}
+@media (min-width: 960px) {
+  .item {
+    width: 50%; display: inline-block;
+  }
+}
+@media (min-width: 1900px) {
+  .item {
+    width: 25%; display: inline-block;
+  }
+}
+</style>
+<!--
+<script src="https://cdn.jsdelivr.net/npm/otpauth/dist/otpauth.umd.min.js"></script>
+-->
+<script src="libs/otpauth.umd.min.js"></script>
+<!-- AFTER OTPAUTH -->
+</head>
+<body>
+<!-- MENU ICON -->
+<div id="menu-icon" class="menu-icon">
+  <a title="Klik untuk membuka menu" href="#menu">
+    <span class="linemenu"></span>
+    <span class="linemenu"></span>
+    <span class="linemenu"></span>
+  </a>
+</div>
+
+<!-- MENU WINDOW -->
+<div id="menu" class="menu">
+  <div class="menu-close"><a title="Tutup menu" href="#">X</a></div>
+  <ul class="menu-list">
+    <li>
+      <a id="menu-open-file" href="#">Open File...</a>
+    </li>
+    <li><a id="menu-about" href="#about">About</a></li>
+  </ul>
+  <div class="menu-footer">
+    <span>Gembok v1.0</span>
+    <span>Made with &#x2665; by <a href="https://rioastamal.net/">Rio Astamal</a></span>
+  </div>
+</div>
+
+<!-- EDITOR WINDOW -->
+<div class="header">
+  <h2 class="title text-center border-bottom">&#128274; Gembok Authenticator</h2>
+</div>
+
+<div class="items-container">
+</div>
+
+<!-- HIDDEN INPUT FILE -->
+<input type="file" id="file-open-input" accept=".json" class="hide">
+<script>
+var $ = function(el) { return document.querySelector(el) };
+var $$ = function(el) { return document.querySelectorAll(el) };
+var timer = {};
+var secretMap = {};
+var tokenMap = {};
+var fileOpenInput = document.getElementById('file-open-input');
+
+function createItem(options) {
+  var itemHtml = '<div class="item" data-algorithm="' + (options.algorithm || 'SHA1') + '" data-provider="' + options.provider + '" data-digits="' + (options.digits || 6) + '" data-period="' + (options.period || 30) + '">';
+      itemHtml += '<h3 class="item-title">' + options.provider + '</h3>';
+      itemHtml += '<p class="item-desc">' + options.description + '</p>';
+      itemHtml += '<h4 class="item-token">000000</h4>';
+      itemHtml += '<div style="background-color: ' + (options.indicatorColor || 'red') + '" class="item-expires"><div class="item-expires-progress"></div></div>';
+
+      $('.items-container').insertAdjacentHTML('beforeend', itemHtml);
+}
+
+function loadItems(jsonData) {
+  var items = JSON.parse(jsonData);
+  for (var i=0; i<items.length; i++) {
+    secretMap[items[i].provider] = items[i].secret;
+    createItem(items[i]);
+  }
+
+  updateAllProgressBar();
+}
+
+
+function updateAllProgressBar() {
+  var items = $$('.item');
+  for (var i=0; i<items.length; i++) {
+    updateProgressBar(items[i]);
+  }
+}
+
+function updateProgressBar(item) {
+  var nowInSecs = Math.floor(new Date().getTime() / 1000);
+  var period = parseInt(item.getAttribute('data-period'));
+  var provider = item.getAttribute('data-provider');
+
+  // Modulo per "period" seconds
+  var newTokenInSecs = (period - (nowInSecs % period) - 1);
+  var percentage = newTokenInSecs * 100 / period;
+  tokenMap[provider] = new OTPAuth.TOTP({
+    algorithm: item.getAttribute('data-algorithm'),
+    digits: item.getAttribute('data-digits'),
+    period: period,
+    secret: OTPAuth.Secret.fromBase32(secretMap[provider])
+  });
+
+  // -1 in newTokenInSecs just to make sure progress bar able to goes
+  // to zero because it go back to 100% without goes to zero first
+  // (-1 it can be removed though)
+  // console.log([nowInSecs, newTokenInSecs, percentage]);
+  item.querySelector('.item-token').innerText = tokenMap[provider].generate();
+  item.querySelector('.item-expires-progress').style.width = percentage + '%';
+
+  timer[provider] = setTimeout(function() {
+    updateProgressBar(item);
+  }, 1000);
+}
+
+function resetState() {
+  for (timerName in timer) {
+    clearTimeout(timer[timerName]);
+  }
+
+  secretMap = {};
+  tokenMap = {};
+  timer = {};
+
+  var itemsNode = $('.items-container');
+  while (itemsNode.firstChild) {
+    itemsNode.removeChild(itemsNode.lastChild);
+  }
+}
+
+document.getElementById('menu-open-file').onclick = function(e)
+{
+  if (fileOpenInput) {
+    fileOpenInput.value = ''; // force 'onchange' event
+    fileOpenInput.click();
+  }
+}
+
+fileOpenInput.onchange = function(e) {
+  var file = fileOpenInput.files[0];
+  var reader = new FileReader();
+
+  reader.onload = function(readerEvt) {
+    resetState();
+    loadItems(reader.result);
+  }
+  reader.readAsText(file);
+}
+</script>
+</body>
+</html>
