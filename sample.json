@@ -1,0 +1,17 @@
+[
+  {
+    "provider": "Google",
+    "description": "Main account",
+    "secret": "KRSWW3TPINSXEZDBOMXGG33N",
+    "period": 30,
+    "digits": 6,
+    "algorithm": "SHA1",
+    "indicatorColor": "orange"
+  },
+  {
+    "provider": "Twitter",
+    "description": "john@example.com",
+    "secret": "JNEVESKNK5AS42LE",
+    "indicatorColor": "cyan"
+  }
+]
