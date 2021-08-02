@@ -2,16 +2,28 @@
   {
     "provider": "Google",
     "description": "Main account",
-    "secret": "KRSWW3TPINSXEZDBOMXGG33N",
+    "secret": "I5XW6Z3MMUQG2YLJNYQGCY3D",
     "period": 30,
     "digits": 6,
     "algorithm": "SHA1",
+    "indicatorColor": "red"
+  },
+  {
+    "provider": "AWS",
+    "description": "Root account (john@example.com)",
+    "secret": "IFLVG4TPN52GCY3D",
     "indicatorColor": "orange"
   },
   {
     "provider": "Twitter",
     "description": "john@example.com",
-    "secret": "JNEVESKNK5AS42LE",
-    "indicatorColor": "cyan"
+    "secret": "KR3WS5DUMVZC4Y3PNVVG62DO",
+    "indicatorColor": "#1DA1F2"
+  },
+  {
+    "provider": "Facebook",
+    "description": "Foo account",
+    "secret": "IZQWGZLCN5XWWLTD",
+    "indicatorColor": "#4267B2"
   }
 ]
