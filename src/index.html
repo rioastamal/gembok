@@ -279,7 +279,7 @@ pre {
     "indicatorColor": "#4267B2"
   }
 ]</code></pre>
-    <p class="item-desc">The only required attributes are provider and secret the rest are optional.</p>
+    <p class="item-desc">The only required attributes are &quot;provider&quot; and &quot;secret&quot; the rest are optional.</p>
   <p class="item-desc">Save the JSON file and then use Open File... menu to load the file. You should now see 4 items being displayed.</p>
   </div>
 </div>
@@ -302,7 +302,7 @@ var tokenMap = {};
 var fileOpenInput = document.getElementById('file-open-input');
 
 function createItem(options) {
-  var itemHtml = '<div class="item" data-algorithm="' + (options.algorithm || 'SHA1') + '" data-provider="' + options.provider + '" data-digits="' + (options.digits || 6) + '" data-period="' + (options.period || 30) + '">';
+  var itemHtml = '<div class="item" data-identifier="' + options.identifier + '" data-algorithm="' + (options.algorithm || 'SHA1') + '" data-provider="' + options.provider + '" data-digits="' + (options.digits || 6) + '" data-period="' + (options.period || 30) + '">';
       itemHtml += '<h3 class="item-title">' + (options.provider || 'error') + '</h3>';
       itemHtml += '<p class="item-desc">' + (options.description || '') + '</p>';
       itemHtml += '<h4 class="item-token">000000</h4>';
@@ -315,7 +315,9 @@ function loadItems(jsonData) {
   try {
     var items = JSON.parse(jsonData);
     for (var i=0; i<items.length; i++) {
-      secretMap[items[i].provider] = items[i].secret;
+      var identifier = items[i].provider + '-' + i;
+      items[i].identifier = identifier;
+      secretMap[identifier] = items[i].secret;
       createItem(items[i]);
     }
 
@@ -339,22 +341,23 @@ function updateProgressBar(item) {
   var nowInSecs = Math.floor(new Date().getTime() / 1000);
   var period = parseInt(item.getAttribute('data-period'));
   var provider = item.getAttribute('data-provider');
+  var identifier = item.getAttribute('data-identifier');
 
   // Modulo per "period" seconds
   var newTokenInSecs = (period - (nowInSecs % period) - 1);
   var percentage = newTokenInSecs * 100 / period;
-  tokenMap[provider] = new OTPAuth.TOTP({
+  tokenMap[identifier] = new OTPAuth.TOTP({
     algorithm: item.getAttribute('data-algorithm'),
     digits: item.getAttribute('data-digits'),
     period: period,
-    secret: OTPAuth.Secret.fromBase32(secretMap[provider])
+    secret: OTPAuth.Secret.fromBase32(secretMap[identifier])
   });
 
   // -1 in newTokenInSecs just to make sure progress bar able to goes
   // to zero because it go back to 100% without goes to zero first
   // (-1 it can be removed though)
   // console.log([nowInSecs, newTokenInSecs, percentage]);
-  item.querySelector('.item-token').innerText = tokenMap[provider].generate();
+  item.querySelector('.item-token').innerText = tokenMap[identifier].generate();
   item.querySelector('.item-expires-progress').style.width = percentage + '%';
 
   timer[provider] = setTimeout(function() {
