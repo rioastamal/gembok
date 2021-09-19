@@ -146,6 +146,7 @@ ul.menu-list li span {
   font-size: 32px;
   font-weight: normal;
   color: #f1f1f1;
+  cursor: pointer;
 }
 .item .item-expires {
   width: 100%;
@@ -157,6 +158,19 @@ ul.menu-list li span {
   width: 100%;
   height: 4px;
   background-color: #f1f1f1;
+}
+.item-copied {
+  text-align: right;
+  color: yellow;
+  background-color: #272822;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+  display: none;
+  border:  1px solid #999;
+  padding: 4px 8px;
+  border-radius:  4px;
 }
 pre {
   margin-bottom: 14px;
@@ -200,7 +214,7 @@ pre {
     <li><a id="menu-about" href="#about">About</a></li>
   </ul>
   <div class="menu-footer">
-    <span>Gembok Authenticator v1.0</span>
+    <span>Gembok Authenticator v1.1</span>
     <span>Made with &#x2665; by <a href="https://rioastamal.net/">Rio Astamal</a></span>
   </div>
 </div>
@@ -228,6 +242,8 @@ pre {
       - <a href="https://github.com/hectorm/otpauth">https://github.com/hectorm/otpauth</a> by Héctor Molinero Fernández.</p>
 
     <h3 class="item-title">Changelog</h3>
+    <p class="item-desc"><b>v1.1</b><br>
+      - New feature: Copy token to clipboard (2021/09/19)</p>
     <p class="item-desc"><b>v1.0</b><br>
       - Initial release of Gembok Authenticator (2021/08/03)</p>
 
@@ -297,6 +313,7 @@ pre {
 var $ = function(el) { return document.querySelector(el) };
 var $$ = function(el) { return document.querySelectorAll(el) };
 var timer = {};
+var clipboardTimer = null;
 var secretMap = {};
 var tokenMap = {};
 var fileOpenInput = document.getElementById('file-open-input');
@@ -305,7 +322,7 @@ function createItem(options) {
   var itemHtml = '<div class="item" data-identifier="' + options.identifier + '" data-algorithm="' + (options.algorithm || 'SHA1') + '" data-provider="' + options.provider + '" data-digits="' + (options.digits || 6) + '" data-period="' + (options.period || 30) + '">';
       itemHtml += '<h3 class="item-title">' + (options.provider || 'error') + '</h3>';
       itemHtml += '<p class="item-desc">' + (options.description || '') + '</p>';
-      itemHtml += '<h4 class="item-token">000000</h4>';
+      itemHtml += '<h4 class="item-token" onclick="copyToClipboard(this.innerText)" title="Click to copy">000000</h4>';
       itemHtml += '<div style="background-color: ' + (options.indicatorColor || 'red') + '" class="item-expires"><div class="item-expires-progress"></div></div>';
 
       $('.items-container').insertAdjacentHTML('beforeend', itemHtml);
@@ -322,6 +339,7 @@ function loadItems(jsonData) {
     }
 
     updateAllProgressBar();
+    $('.items-container').insertAdjacentHTML('beforeend', '  <div class="item-copied"><p>Copied to clipboard</p></div>');
   } catch(e) {
     if (e.name === "SyntaxError") {
       alert('Failed to load JSON file, make sure it is valid.');
@@ -390,6 +408,24 @@ function openPage(name) {
 
     pages[i].style.display = 'block';
   }
+}
+
+function copyToClipboard(text) {
+  clipboardTimer && clearTimeout(clipboardTimer);
+
+  // Temporarily create textarea to be able to select text
+  var elem = document.createElement('textarea');
+  elem.value = text;
+  document.body.appendChild(elem);
+  elem.select();
+  document.execCommand('copy');
+  document.body.removeChild(elem);
+
+  $('.item-copied').style.display = 'inline-block';
+  $('.item-copied').innerHTML = '<p>&quot;' + text + '&quot; copied to clipboard</p>'
+  clipboardTimer = setTimeout(function hideText() {
+    $('.item-copied').style.display = 'none';
+  }, 3000);
 }
 
 $('#menu-open-file').onclick = function(e) {
