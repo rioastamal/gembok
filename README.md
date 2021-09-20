@@ -81,6 +81,7 @@ Gembok Authenticator uses following library.
 
 ### v1.0
 
+* New feature: Copy token to clipboard (2021/09/19)
 * Initial release of Gembok Authenticator (2021/08/03)
 
 ## Author
