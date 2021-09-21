@@ -10,7 +10,7 @@ Clone this repository or download archived version from GitHub and then save it 
 
 As an alternative you can download directly `index.html` from release page using following URL.
 
-[https://github.com/rioastamal/gembok/releases/download/v1.0/index.html](https://github.com/rioastamal/gembok/releases/download/v1.0/index.html)
+[https://github.com/rioastamal/gembok/releases/download/v1.1/index.html](https://github.com/rioastamal/gembok/releases/download/v1.1/index.html)
 
 ## Create JSON File
 
