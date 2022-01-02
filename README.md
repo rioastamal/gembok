@@ -52,6 +52,12 @@ The only required attributes are `provider` and `secret` the rest are optional.
 
 Save the JSON file and then use `Open File...` menu to load the file. You should now see 4 items being displayed.
 
+You can also encrypt your JSON file using AES-256-CBC and Gembok Authenticator automatically try to decrypt the file and ask you the passphrase. Here is an example of above JSON encrypted with AES-256-CBC with passphrase `gembok-authenticator`.
+
+```
+U2FsdGVkX1/QSAvwH5h14leaLOcB0On3cALWPUHN4tuuvdyN4/rzh97awj0bBxXO72JneBjUIOxvHC2u+srnbW6vyykcnSsXPFidXrajeExIiYBD8SWG/AphYqnJYJGdRDb+DDnWEP/ST9ZkWCjOrQZcBTtsuBJFAMjSC2pOeA5GHZve2FFoNWQZsL1AeTJYBl7GzCenqC/Qxs9mFOuEyMs4bWakji/puY4pXpf/b4dWx7i5tktOX06LFzwnclWuqoCHzwtvnHwWDAKONZ39OD2hfY+iO/AilfnJQNhdfKVs5CyJlfwG9/NP6lYpjGpcaxm5bM6QRoEvqlKSP1KaGRQwaUcftBD+p+hdYwLq1YFjDQIXgoM680XU1mS3o0U6+4lsBzkqYrYP8HUBQEYdg5gnrCD9/3wI5TbzgnUqHAUgwI7JP6Rh/7FAwj3jkNRYOhjk58NGwORu0InzOKwIrCv8fCx/WfEMPJgczE3kL5kytMIwKX3IiedUfKNSQRGYVAU4Vo9cnLqCeWmN/V+UyFMmPiuUHa+PwtARS919nLj00MMAQfCNGv3OxPNE/6qdXAzbB3tHzuUQdcg+kEjBBErlGceaXx1CAzPgdzcnEPkJk1kERo1L4TRmGn5QmDr3Tdn82Aua0MrXEAzVxHmX7EFaEZ9mtJG9E+/MupDw5kzJqPvPEHYxSP6/fsNzvLVJ5O4euSPahvPsNCh4itTlQ9NkfIdCs/cwPaZ8Pb0e32wo46ilt03+2FVZTIzfNvZY2W+lZmUforNrZsmxnkFxQRJfWwCfFA1vBPo/1n06Lk94+mLiDS6Ag8Q/Cwfhm4aKef4fZVRePmCzeyKXNQS7M6BW07zWjDkJDX8dwup2R80=
+```
+
 ## Build
 
 The build process will generate single HTML file of the editor. It may useful if you want use it on another machine because it will be more portable.
@@ -65,7 +71,17 @@ You can try to open file `build/index.html` using web browser.
 
 ## Extra Security
 
-If you're paranoid then you may want to encrypt your JSON file using other encryption tools such as OpenSSL or PGP. Just before you want to load it on Gembok Authenticator you need to decrypt the file first.
+#### Option 1
+
+You can encrypt JSON file with AES-256-CBC and Gembok Authenticathor automatically try to decrypt them. As an example you can use following OpenSSL command to encrypt.
+
+```
+$ openssl enc -aes-256-cbc -in sample.json -out encrypted.sample.json -pass pass:"gembok-authenticator" -e -base64 -A
+```
+
+#### Option 2
+
+If you're planning to encrypt your JSON other using than AES-256-CBC then you can using other encryption tools such as OpenSSL or PGP. Just before you want to load it on Gembok Authenticator you need to decrypt the file first.
 
 ## Compatibility
 
@@ -76,8 +92,13 @@ Gembok Authenticator uses the same algorithm as most software based authenticato
 Gembok Authenticator uses following library.
 
 - https://github.com/hectorm/otpauth by [Héctor Molinero Fernández](https://github.com/hectorm/)
+- https://github.com/brix/crypto-js by [Evan Vosberg](https://github.com/brix/)
 
 ## ChangeLog
+
+### v1.2 (2022/01/02)
+
+* New feature: Ability to read JSON file which has been encrypted with AES-256-CBC.
 
 ### v1.1 (2021/09/19)
 

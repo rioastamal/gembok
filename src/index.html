@@ -175,6 +175,10 @@ ul.menu-list li span {
 pre {
   margin-bottom: 14px;
 }
+pre code.break {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
 @media (min-width: 960px) {
   .item {
     width: 50%; display: inline-block;
@@ -188,9 +192,11 @@ pre {
 </style>
 <!--
 <script src="https://cdn.jsdelivr.net/npm/otpauth/dist/otpauth.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 -->
 <script src="libs/otpauth.umd.min.js"></script>
-<!-- AFTER OTPAUTH -->
+<script src="libs/crypto-js.min.js"></script>
+<!-- AFTER JS -->
 </head>
 <body>
 <!-- MENU ICON -->
@@ -239,13 +245,16 @@ pre {
 
     <h3 class="item-title">Credits</h3>
     <p class="item-desc">Gembok Authenticator uses following library.<br>
-      - <a href="https://github.com/hectorm/otpauth">https://github.com/hectorm/otpauth</a> by Héctor Molinero Fernández.</p>
+      - <a href="https://github.com/hectorm/otpauth">https://github.com/hectorm/otpauth</a> by Héctor Molinero Fernández.<br>
+      - <a href="https://github.com/brix/crypto-js">https://github.com/brix/crypto-js</a> by Evan Vosberg.</p>
 
     <h3 class="item-title">Changelog</h3>
-    <p class="item-desc"><b>v1.1</b><br>
-      - New feature: Copy token to clipboard (2021/09/19)</p>
-    <p class="item-desc"><b>v1.0</b><br>
-      - Initial release of Gembok Authenticator (2021/08/03)</p>
+    <p class="item-desc"><b>v1.2 (2022/01/02)</b><br>
+      - New feature: Ability to read JSON file which has been encrypted with AES-256-CBC</p>
+    <p class="item-desc"><b>v1.1 (2021/09/19)</b><br>
+      - New feature: Copy token to clipboard</p>
+    <p class="item-desc"><b>v1.0 (2021/08/03)</b><br>
+      - Initial release of Gembok Authenticator</p>
 
     <h3 class="item-title">Author</h3>
     <p class="item-desc">This application is written by <b><a href="https://rioastamal.net/">Rio Astamal</a></b>.</p>
@@ -295,8 +304,11 @@ pre {
     "indicatorColor": "#4267B2"
   }
 ]</code></pre>
-    <p class="item-desc">The only required attributes are &quot;provider&quot; and &quot;secret&quot; the rest are optional.</p>
+  <p class="item-desc">The only required attributes are &quot;provider&quot; and &quot;secret&quot; the rest are optional.</p>
   <p class="item-desc">Save the JSON file and then use Open File... menu to load the file. You should now see 4 items being displayed.</p>
+
+  <p class="item-desc">You can also encrypt JSON file using AES-256-CBC and Gembok Authenticator automatically ask you passphrase and try to decrypt the file automatically. Here is an example of above JSON encrypted with AES-256-CBC with passphrase &quot;gembok-authenticator&quot;.</p>
+<pre><code class="break">U2FsdGVkX1/QSAvwH5h14leaLOcB0On3cALWPUHN4tuuvdyN4/rzh97awj0bBxXO72JneBjUIOxvHC2u+srnbW6vyykcnSsXPFidXrajeExIiYBD8SWG/AphYqnJYJGdRDb+DDnWEP/ST9ZkWCjOrQZcBTtsuBJFAMjSC2pOeA5GHZve2FFoNWQZsL1AeTJYBl7GzCenqC/Qxs9mFOuEyMs4bWakji/puY4pXpf/b4dWx7i5tktOX06LFzwnclWuqoCHzwtvnHwWDAKONZ39OD2hfY+iO/AilfnJQNhdfKVs5CyJlfwG9/NP6lYpjGpcaxm5bM6QRoEvqlKSP1KaGRQwaUcftBD+p+hdYwLq1YFjDQIXgoM680XU1mS3o0U6+4lsBzkqYrYP8HUBQEYdg5gnrCD9/3wI5TbzgnUqHAUgwI7JP6Rh/7FAwj3jkNRYOhjk58NGwORu0InzOKwIrCv8fCx/WfEMPJgczE3kL5kytMIwKX3IiedUfKNSQRGYVAU4Vo9cnLqCeWmN/V+UyFMmPiuUHa+PwtARS919nLj00MMAQfCNGv3OxPNE/6qdXAzbB3tHzuUQdcg+kEjBBErlGceaXx1CAzPgdzcnEPkJk1kERo1L4TRmGn5QmDr3Tdn82Aua0MrXEAzVxHmX7EFaEZ9mtJG9E+/MupDw5kzJqPvPEHYxSP6/fsNzvLVJ5O4euSPahvPsNCh4itTlQ9NkfIdCs/cwPaZ8Pb0e32wo46ilt03+2FVZTIzfNvZY2W+lZmUforNrZsmxnkFxQRJfWwCfFA1vBPo/1n06Lk94+mLiDS6Ag8Q/Cwfhm4aKef4fZVRePmCzeyKXNQS7M6BW07zWjDkJDX8dwup2R80=</code></pre>
   </div>
 </div>
 
@@ -328,9 +340,24 @@ function createItem(options) {
       $('.items-container').insertAdjacentHTML('beforeend', itemHtml);
 }
 
+function parseEncryptedJson(jsonData) {
+  jsonData = jsonData.trim();
+  if (jsonData.charAt(0) === '[') {
+    return jsonData;
+  }
+
+  // It should be encrypted JSON with AES
+  var password = prompt('Enter passphrase');
+  if (password === null) {
+    throw 'Can not decrypt file, invalid passphrase.';
+  }
+
+  return CryptoJS.AES.decrypt(jsonData, password).toString(CryptoJS.enc.Utf8);
+}
+
 function loadItems(jsonData) {
   try {
-    var items = JSON.parse(jsonData);
+    var items = JSON.parse(parseEncryptedJson(jsonData));
     for (var i=0; i<items.length; i++) {
       var identifier = items[i].provider + '-' + i;
       items[i].identifier = identifier;
@@ -343,7 +370,10 @@ function loadItems(jsonData) {
   } catch(e) {
     if (e.name === "SyntaxError") {
       alert('Failed to load JSON file, make sure it is valid.');
+      return;
     }
+
+    alert(e.toString());
   }
 }
 
