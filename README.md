@@ -10,7 +10,7 @@ Clone this repository or download archived version from GitHub and then save it 
 
 As an alternative you can download directly `index.html` from release page using following URL.
 
-[https://github.com/rioastamal/gembok/releases/download/v1.1/index.html](https://github.com/rioastamal/gembok/releases/download/v1.1/index.html)
+[https://github.com/rioastamal/gembok/releases/download/v1.2/index.html](https://github.com/rioastamal/gembok/releases/download/v1.1/index.html)
 
 ## Create JSON File
 
@@ -81,7 +81,7 @@ $ openssl enc -aes-256-cbc -in sample.json -out encrypted.sample.json -pass pass
 
 #### Option 2
 
-If you're planning to encrypt your JSON other using than AES-256-CBC then you can using other encryption tools such as OpenSSL or PGP. Just before you want to load it on Gembok Authenticator you need to decrypt the file first.
+If you're planning to encrypt your JSON using other than AES-256-CBC, you can using other encryption tools such as OpenSSL or PGP. Keep it mind, just before you want to load it on Gembok Authenticator you need to decrypt the file first.
 
 ## Compatibility
 
