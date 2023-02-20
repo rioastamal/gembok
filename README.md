@@ -60,7 +60,7 @@ U2FsdGVkX1/QSAvwH5h14leaLOcB0On3cALWPUHN4tuuvdyN4/rzh97awj0bBxXO72JneBjUIOxvHC2u
 
 ## Build
 
-The build process will generate single HTML file of the editor. It may useful if you want use it on another machine because it will be more portable.
+The build generates a single, portable HTML file for Gembok Authenticator, useful for use on other machines.
 
 ```
 $ bash build.sh
